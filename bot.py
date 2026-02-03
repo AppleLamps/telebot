@@ -23,6 +23,7 @@ import httpx
 from dotenv import load_dotenv
 from telegram import BotCommand, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ChatAction, ParseMode
+from telegram.helpers import escape_markdown
 from telegram.ext import (
     Application,
     CallbackQueryHandler,
@@ -748,8 +749,9 @@ Use their ACTUAL quotes and takes as material. Create a funny 2D cartoon animati
             await status_msg.edit_text("❌ Failed to analyze account.")
             return
 
+        escaped_handle = escape_markdown(handle, version=1)
         await status_msg.edit_text(
-            f"🎬 Generating video for @{handle}...\n_(This may take 2-3 minutes)_",
+            f"🎬 Generating video for @{escaped_handle}...\n_(This may take 2-3 minutes)_",
             parse_mode=ParseMode.MARKDOWN,
         )
 
@@ -797,8 +799,10 @@ async def roast_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 for i in range(0, len(roast), 4000):
                     await update.message.reply_text(roast[i : i + 4000])
             else:
+                escaped_handle = escape_markdown(handle, version=1)
+                escaped_roast = escape_markdown(roast, version=1)
                 await update.message.reply_text(
-                    f"🔥 *Roast of @{handle}*\n\n{roast}", parse_mode=ParseMode.MARKDOWN
+                    f"🔥 *Roast of @{escaped_handle}*\n\n{escaped_roast}", parse_mode=ParseMode.MARKDOWN
                 )
         else:
             await status_msg.edit_text("❌ Failed to generate roast.")
@@ -857,8 +861,9 @@ async def osint_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
+    escaped_handle = escape_markdown(handle, version=1)
     status_msg = await update.message.reply_text(
-        f"🔎 Compiling OSINT dossier for @{handle}...\n_(This is comprehensive - may take a minute)_",
+        f"🔎 Compiling OSINT dossier for @{escaped_handle}...\n_(This is comprehensive - may take a minute)_",
         parse_mode=ParseMode.MARKDOWN,
     )
 
@@ -1017,12 +1022,17 @@ async def caricature_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
             prompt = result
             comment = ""
 
-        await status_msg.edit_text(
-            f"🎨 Drawing caricature...\n_{comment}_"
-            if comment
-            else "🎨 Drawing caricature...",
-            parse_mode=ParseMode.MARKDOWN,
-        )
+        if comment:
+            escaped_comment = escape_markdown(comment, version=1)
+            await status_msg.edit_text(
+                f"🎨 Drawing caricature...\n_{escaped_comment}_",
+                parse_mode=ParseMode.MARKDOWN,
+            )
+        else:
+            await status_msg.edit_text(
+                "🎨 Drawing caricature...",
+                parse_mode=ParseMode.MARKDOWN,
+            )
 
         # Generate caricature image
         caricature_prompt = f"""Create a caricature of the person in this style: {prompt}
