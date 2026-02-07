@@ -466,7 +466,7 @@ async def generate_image_xai(prompt: str) -> str | None:
                 "Content-Type": "application/json",
             },
             json={
-                "model": "grok-imagine-image",
+                "model": "grok-imagine-image-pro",
                 "prompt": prompt,
                 "n": 1,
                 "response_format": "url",
